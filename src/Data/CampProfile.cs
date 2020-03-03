@@ -14,8 +14,9 @@ namespace CoreCodeCamp.Data
         {
             CreateMap<Camp, CampModel>()
                 .ForMember(d => d.Venue, o => o.MapFrom(m => m.Location.VenueName));
-            CreateMap<Talk, TalkModel>();
             CreateMap<CampModel, Camp>();
+            CreateMap<Talk, TalkModel>();
+            CreateMap<TalkModel, Talk>();
             CreateMap<Speaker, SpeakerModel>();
         }
     }

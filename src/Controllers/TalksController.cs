@@ -9,6 +9,7 @@ using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace CoreCodeCamp.Controllers
 {
@@ -43,7 +44,7 @@ namespace CoreCodeCamp.Controllers
         }
 
         [HttpGet("{talkId:int}")]
-        public async Task<ActionResult<TalkModel>> GetAll(string moniker, int talkId)
+        public async Task<ActionResult<TalkModel>> GetOne(string moniker, int talkId)
         {
             try
             {
@@ -56,6 +57,33 @@ namespace CoreCodeCamp.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<TalkModel>> Add(string moniker, [FromBody] TalkModel model)
+        {
+            try
+            {
+                var camp = await _repository.GetCampAsync(moniker);
+                if (camp == null) return BadRequest(new {message = $"Camp with {moniker} moniker not exists."});
+
+                var talk = _mapper.Map<Talk>(model);
+                talk.Camp = camp;
+                _repository.Add(talk);
+
+                if (await _repository.SaveChangesAsync())
+                {
+                    var location = _linkGenerator.GetPathByAction("GetOne", "Talks", new { talkId = talk.TalkId });
+                    return Created("link", _mapper.Map<Talk>(_mapper.Map<TalkModel>(talk)));
+                }
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Something goes wrong");
         }
     }
 }
