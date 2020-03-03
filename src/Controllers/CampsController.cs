@@ -105,5 +105,28 @@ namespace CoreCodeCamp.Controllers
 
             return BadRequest();
         }
+
+        [HttpPut("{moniker}")]
+        public async Task<ActionResult<CampModel>> Update(string moniker, [FromBody] CampModel model)
+        {
+            try
+            {
+                var oldCamp = await _repository.GetCampAsync(moniker);
+                if (oldCamp == null) return BadRequest(new {message = "Camp with that 'moniker' not exists."});
+
+                _mapper.Map(model, oldCamp);
+
+                if (await _repository.SaveChangesAsync())
+                {
+                    return _mapper.Map<CampModel>(oldCamp);
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return BadRequest();
+        }
     }
 }
