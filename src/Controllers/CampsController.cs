@@ -51,8 +51,9 @@ namespace CoreCodeCamp.Controllers
 
                 if (result == null)
                 {
-                    return NotFound(new { message = "Camp not found." });
+                    return NotFound(new {message = "Camp not found."});
                 }
+
                 return _mapper.Map<CampModel>(result);
             }
             catch (Exception)
@@ -87,9 +88,10 @@ namespace CoreCodeCamp.Controllers
                 if (isExists != null) return BadRequest(new {message = "Camp with that 'moniker' already exists."});
 
 
-                var location = _linkGenerator.GetPathByAction("GetByMoniker", "Camps", new { moniker = model.Moniker });
+                var location = _linkGenerator.GetPathByAction("GetByMoniker", "Camps", new {moniker = model.Moniker});
 
-                if (string.IsNullOrWhiteSpace(location)) return BadRequest(new { message = "Could not use current moniker" });
+                if (string.IsNullOrWhiteSpace(location))
+                    return BadRequest(new {message = "Could not use current moniker"});
 
                 var camp = _mapper.Map<Camp>(model);
                 _repository.Add(camp);
@@ -128,5 +130,30 @@ namespace CoreCodeCamp.Controllers
 
             return BadRequest();
         }
+
+        [HttpDelete("{moniker}")]
+        public async Task<IActionResult> Delete(string moniker)
+        {
+            try
+            {
+                var camp = await _repository.GetCampAsync(moniker);
+                if (camp == null) return BadRequest(new { message = "Camp with that moniker not exists." });
+
+
+                _repository.Delete(camp);
+
+                if (await _repository.SaveChangesAsync())
+                {
+                    return Ok(new { message = $"Camp with {moniker} was successfully deleted." });
+                }
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Something goes wrong");
+        }
     }
-}
+};
