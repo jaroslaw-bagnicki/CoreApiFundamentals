@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using CoreCodeCamp.Data;
@@ -71,6 +72,26 @@ namespace CoreCodeCamp.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CampModel>> AddCamp([FromBody] CampModel model)
+        {
+            try
+            {
+                var camp = _mapper.Map<Camp>(model);
+                _repository.Add(camp);
+                if (await _repository.SaveChangesAsync())
+                {
+                    return Created("", _mapper.Map<CampModel>(camp));
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return BadRequest();
         }
     }
 }
