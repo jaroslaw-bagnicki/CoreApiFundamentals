@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace CoreCodeCamp.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class CampsController : ControllerBase
     {
         private readonly ICampRepository _repository;
@@ -82,6 +83,10 @@ namespace CoreCodeCamp.Controllers
         {
             try
             {
+                var isExists = await _repository.GetCampAsync(model.Moniker);
+                if (isExists != null) return BadRequest(new {message = "Camp with that 'moniker' already exists."});
+
+
                 var location = _linkGenerator.GetPathByAction("GetByMoniker", "Camps", new { moniker = model.Moniker });
 
                 if (string.IsNullOrWhiteSpace(location)) return BadRequest(new { message = "Could not use current moniker" });
