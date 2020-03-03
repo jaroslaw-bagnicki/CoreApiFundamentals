@@ -6,6 +6,7 @@ using CoreCodeCamp.Data;
 using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace CoreCodeCamp.Controllers
@@ -15,11 +16,13 @@ namespace CoreCodeCamp.Controllers
     {
         private readonly ICampRepository _repository;
         private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
 
-        public CampsController(ICampRepository repository, IMapper mapper)
+        public CampsController(ICampRepository repository, IMapper mapper, LinkGenerator linkGenerator)
         {
             _repository = repository;
             _mapper = mapper;
+            _linkGenerator = linkGenerator;
         }
 
         [HttpGet]
@@ -39,7 +42,7 @@ namespace CoreCodeCamp.Controllers
 
 
         [HttpGet("{moniker}")]
-        public async Task<ActionResult<CampModel>> GetById(string moniker)
+        public async Task<ActionResult<CampModel>> GetByMoniker(string moniker)
         {
             try
             {
@@ -75,15 +78,19 @@ namespace CoreCodeCamp.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CampModel>> AddCamp([FromBody] CampModel model)
+        public async Task<ActionResult<CampModel>> Add([FromBody] CampModel model)
         {
             try
             {
+                var location = _linkGenerator.GetPathByAction("GetByMoniker", "Camps", new { moniker = model.Moniker });
+
+                if (string.IsNullOrWhiteSpace(location)) return BadRequest(new { message = "Could not use current moniker" });
+
                 var camp = _mapper.Map<Camp>(model);
                 _repository.Add(camp);
                 if (await _repository.SaveChangesAsync())
                 {
-                    return Created("", _mapper.Map<CampModel>(camp));
+                    return Created(location, _mapper.Map<CampModel>(camp));
                 }
             }
             catch (Exception e)
