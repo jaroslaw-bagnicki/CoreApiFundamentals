@@ -88,5 +88,26 @@ namespace CoreCodeCamp.Controllers
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Something goes wrong");
         }
+
+        [HttpPut("{talkId:int}")]
+        public async Task<ActionResult<TalkModel>> Update(string moniker, int talkId, [FromBody] TalkModel model)
+        {
+            try
+            {
+                var talk = await _repository.GetTalkByMonikerAsync(moniker, talkId, true);
+                if (talk == null) return BadRequest(new {message = "Talk not exits."});
+                _mapper.Map(model, talk);
+                if (await _repository.SaveChangesAsync())
+                {
+                    return _mapper.Map<TalkModel>(talk);
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Something goes wrong");
+        }
     }
 }
