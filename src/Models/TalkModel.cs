@@ -10,10 +10,13 @@ namespace CoreCodeCamp.Models
     public class TalkModel
     {
         [Required]
+        [StringLength(50)]
         public string Title { get; set; }
         [Required]
+        [StringLength(4000, MinimumLength = 20)]
         public string Abstract { get; set; }
         [Required]
+        [Range(100, 300)]
         public int Level { get; set; }
 
         [Required]
