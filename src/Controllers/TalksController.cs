@@ -96,13 +96,20 @@ namespace CoreCodeCamp.Controllers
             {
                 var talk = await _repository.GetTalkByMonikerAsync(moniker, talkId, true);
                 if (talk == null) return BadRequest(new {message = "Talk not exits."});
+
+                if (talk.Speaker.SpeakerId != model.Speaker.SpeakerId)
+                {
+                    var speaker = await _repository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                    talk.Speaker = speaker;
+                }
+
                 _mapper.Map(model, talk);
                 if (await _repository.SaveChangesAsync())
                 {
                     return _mapper.Map<TalkModel>(talk);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
