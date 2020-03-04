@@ -100,6 +100,7 @@ namespace CoreCodeCamp.Controllers
                 if (talk.Speaker.SpeakerId != model.Speaker.SpeakerId)
                 {
                     var speaker = await _repository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                    if (speaker == null) return BadRequest("Speaker not exist");
                     talk.Speaker = speaker;
                 }
 
@@ -107,6 +108,28 @@ namespace CoreCodeCamp.Controllers
                 if (await _repository.SaveChangesAsync())
                 {
                     return _mapper.Map<TalkModel>(talk);
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Something goes wrong");
+        }
+
+        [HttpDelete("{talkId:int}")]
+        public async Task<IActionResult> Delete(string moniker, int talkId)
+        {
+            try
+            {
+                var talk = await _repository.GetTalkByMonikerAsync(moniker, talkId);
+                if (talk == null) return BadRequest(new { message = "Talk not exists." });
+
+                _repository.Delete(talk);
+                if (await _repository.SaveChangesAsync())
+                {
+                    return Ok(new {message = "Talk was successfully deleted."});
                 }
             }
             catch (Exception)
