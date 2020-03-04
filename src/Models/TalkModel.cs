@@ -16,6 +16,7 @@ namespace CoreCodeCamp.Models
         [Required]
         public int Level { get; set; }
 
-        public SpeakerModel speaker { get; set; }
+        [Required]
+        public SpeakerModel Speaker { get; set; }
     }
 }

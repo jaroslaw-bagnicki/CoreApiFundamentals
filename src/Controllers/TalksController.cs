@@ -67,14 +67,17 @@ namespace CoreCodeCamp.Controllers
                 var camp = await _repository.GetCampAsync(moniker);
                 if (camp == null) return BadRequest(new {message = $"Camp with {moniker} moniker not exists."});
 
+                var speaker = await _repository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                if (speaker == null) return BadRequest(new { message = $"Speaker with {model.Speaker.SpeakerId} id not exists." });
+
                 var talk = _mapper.Map<Talk>(model);
                 talk.Camp = camp;
                 _repository.Add(talk);
-
                 if (await _repository.SaveChangesAsync())
                 {
+
                     var location = _linkGenerator.GetPathByAction("GetOne", "Talks", new { moniker, talkId = talk.TalkId });
-                    return Created(location, _mapper.Map<Talk>(_mapper.Map<TalkModel>(talk)));
+                    return Created(location, _mapper.Map<TalkModel>(talk));
                 }
 
             }
