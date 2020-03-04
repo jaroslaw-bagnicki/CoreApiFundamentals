@@ -37,7 +37,7 @@ namespace CoreCodeCamp.Controllers
 
                 return _mapper.Map<TalkModel[]>(results);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
@@ -53,7 +53,7 @@ namespace CoreCodeCamp.Controllers
 
                 return _mapper.Map<TalkModel>(result);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
@@ -78,7 +78,7 @@ namespace CoreCodeCamp.Controllers
                 }
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }

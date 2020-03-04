@@ -34,7 +34,7 @@ namespace CoreCodeCamp.Controllers
                 var results = await _repository.GetAllCampsAsync(includeTalks);
                 return _mapper.Map<CampModel[]>(results);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
@@ -73,7 +73,7 @@ namespace CoreCodeCamp.Controllers
 
                 return _mapper.Map<CampModel[]>(results);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
@@ -100,7 +100,7 @@ namespace CoreCodeCamp.Controllers
                     return Created(location, _mapper.Map<CampModel>(camp));
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
@@ -123,7 +123,7 @@ namespace CoreCodeCamp.Controllers
                     return _mapper.Map<CampModel>(oldCamp);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
@@ -148,7 +148,7 @@ namespace CoreCodeCamp.Controllers
                 }
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
